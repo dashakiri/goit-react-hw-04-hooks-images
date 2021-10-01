@@ -1,7 +1,7 @@
 import { Component } from "react";
 import { ImageGalleryItem } from "../ImageGalleryItem/ImageGalleryItem";
 import { ContentLoader } from "../Loader/Loader";
-import { FetchImages } from "../../services/FetchImages/FetchImages";
+import { fetchImages } from "../../services/fetchImages";
 import { LoadMoreButton } from "../Button/Button";
 import { GalleryList } from "../ImageGalleryItem/ImageGalleryItem.styled";
 import { toast } from "react-toastify";
@@ -28,7 +28,7 @@ export class ImageGallery extends Component {
     const { page } = this.state;
 
     if (currentQuery !== prevQuery || prevPage !== currentPage) {
-      FetchImages(currentQuery, page).then((data) => {
+      fetchImages(currentQuery, page).then((data) => {
         if (data.totalHits === 0) {
           return this.setState({ status: "rejected" });
         }
