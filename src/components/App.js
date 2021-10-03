@@ -24,6 +24,7 @@ export default function App() {
       if (data.totalHits === 0) {
         setStatus("rejected");
       }
+
       if (page === 1) {
         setImages(data.hits);
         setStatus("resolved");
@@ -51,6 +52,8 @@ export default function App() {
 
   const handleFormSubmit = (searchQuery) => {
     setSearchQuery(searchQuery);
+    setImages([]);
+    setStatus("pending");
   };
 
   const handleSelectedImage = (largeImageURL, tags) => {
