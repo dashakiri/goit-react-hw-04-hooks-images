@@ -8,7 +8,7 @@ export function ImageGalleryItem({
 }) {
   return (
     <ListItem onClick={() => handleSelectedImage(largeImageURL, tags)}>
-      <img src={webformatURL} alt={tags} width="300" height="200" />
+      <img src={webformatURL} alt={tags} width="300" height="200" loading={'lazy'}/>
     </ListItem>
   );
 }

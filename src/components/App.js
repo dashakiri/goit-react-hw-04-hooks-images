@@ -1,56 +1,99 @@
-import { Component } from "react";
-import { ToastContainer } from "react-toastify";
+import { useState, useEffect } from "react";
+import { toast, ToastContainer } from "react-toastify";
 import { SearchBar } from "./Searchbar/SearchBar";
-import { ImageGallery } from "./ImageGallery/ImageGallery";
-import { Modal } from "./Modal/Modal";
+import ImageGallery from "./ImageGallery/ImageGallery";
+import { fetchImages } from "../services/fetchImages";
+import Modal from "./Modal/Modal";
+import { LoadMoreButton } from "../components/Button/Button";
+import { ContentLoader } from "../components/Loader/Loader";
 
-class App extends Component {
-  constructor(props) {
-    super(props);
+export default function App() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [largeImageURL, setLargeImageURL] = useState(null);
+  const [tags, setTags] = useState("");
+  const [images, setImages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [status, setStatus] = useState("idle");
 
-    this.state = {
-      searchQuery: "",
-      largeImageURL: null,
-      tags: "",
-    };
+  useEffect(() => {
+    fetchImages(searchQuery, page).then((data) => {
+      if (searchQuery.trim() === "") {
+        return;
+      }
 
-    this.handleFormSubmit = this.handleFormSubmit.bind(this);
-    this.onModalClose = this.onModalClose.bind(this);
-    this.handleSelectedImage = this.handleSelectedImage.bind(this);
+      if (data.totalHits === 0) {
+        setStatus("rejected");
+      }
+      if (page === 1) {
+        setImages(data.hits);
+        setStatus("resolved");
+      }
+
+      if (page > 1) {
+        onScroll();
+        setImages((prevState) => [...prevState, ...data.hits]);
+        setStatus("resolved");
+      }
+    });
+  }, [searchQuery, page]);
+
+  function onScroll() {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: "smooth",
+    });
   }
 
-  handleFormSubmit = (searchQuery) => {
-    this.setState({ searchQuery });
+  const handleLoadMoreBtnClick = (e) => {
+    e.preventDefault();
+    setPage((prevState) => prevState + 1);
   };
 
-  handleSelectedImage = (largeImageURL, tags) => {
-    this.setState({ largeImageURL, tags });
+  const handleFormSubmit = (searchQuery) => {
+    setSearchQuery(searchQuery);
   };
 
-  onModalClose = () => {
-    this.setState({ largeImageURL: null });
+  const handleSelectedImage = (largeImageURL, tags) => {
+    setLargeImageURL(largeImageURL);
+    setTags(tags);
   };
 
-  render() {
-    const { searchQuery, largeImageURL, tags } = this.state;
-    return (
-      <div>
-        <SearchBar handleSubmittedForm={this.handleFormSubmit} />
-        <ImageGallery
-          searchQuery={searchQuery}
-          handleSelectedImage={this.handleSelectedImage}
-        />
-        {largeImageURL !== null && (
-          <Modal
-            onModalClose={this.onModalClose}
-            largeImageURL={largeImageURL}
-            tags={tags}
+  const onModalClose = () => {
+    setLargeImageURL(null);
+  };
+
+  return (
+    <div>
+      <SearchBar handleSubmittedForm={handleFormSubmit} />
+
+      {status === "idle" && <p>Пожалуйста, введите поисковый запрос.</p>}
+
+      {status === "pending" && <ContentLoader />}
+
+      {status === "resolved" && (
+        <>
+          <ImageGallery
+            images={images}
+            handleSelectedImage={handleSelectedImage}
           />
-        )}
-        <ToastContainer />
-      </div>
-    );
-  }
-}
+          <LoadMoreButton onClick={handleLoadMoreBtnClick} />
+        </>
+      )}
 
-export default App;
+      {status === "rejected" &&
+        toast.error(
+          `Изображения с именем ${this.props.searchQuery} не найдены!`
+        )}
+
+      {largeImageURL && (
+        <Modal
+          onModalClose={onModalClose}
+          largeImageURL={largeImageURL}
+          tags={tags}
+        />
+      )}
+
+      <ToastContainer />
+    </div>
+  );
+}

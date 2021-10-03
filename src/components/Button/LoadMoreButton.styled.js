@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 
 export const ButtonLoadMore = styled.button`
-  margin: 0 auto;
+  margin-left: 550px;
   padding: 8px 16px;
   display: inline-block;
   width: 180px;
