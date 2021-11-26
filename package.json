@@ -15,7 +15,6 @@
     "react-dom": "^17.0.2",
     "react-loader-spinner": "^4.0.0",
     "react-scripts": "4.0.3",
-    "react-toastify": "^8.0.3",
     "web-vitals": "^1.1.2"
   },
   "scripts": {
@@ -52,7 +51,7 @@
     "prettier": "^2.4.1"
   },
   "lint-staged": {
-    "*.js": "eslint --cache --fix",
-    "*.{js,css,md}": "prettier --write"
+    "*.{js,jsx}": "eslint --cache --fix",
+    "*.{js,jsx,css,md}": "prettier --write"
   }
 }

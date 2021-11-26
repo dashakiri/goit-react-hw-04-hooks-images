@@ -4,13 +4,14 @@ import { ModalBackdrop, ModalContent } from "./Modal.styled";
 
 const modalRoot = document.querySelector("#modal-root");
 
-export default function Modal ({largeImageURL, tags, onModalClose}) {
+export default function Modal({ largeImageURL, tags, onModalClose }) {
   useEffect(() => {
     window.addEventListener("keydown", handleKeydown);
     document.body.style.overflow = "hidden";
-    return () => {window.addEventListener("keydown", handleKeydown);
-    document.body.style.overflow = "unset";
-  };
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+      document.body.style.overflow = "unset";
+    };
   });
 
   const handleKeydown = (e) => {
@@ -21,21 +22,16 @@ export default function Modal ({largeImageURL, tags, onModalClose}) {
 
   const handleBackdropClick = (e) => {
     if (e.currentTarget === e.target) {
-     onModalClose();
+      onModalClose();
     }
   };
-  
+
   return createPortal(
     <ModalBackdrop onClick={handleBackdropClick}>
       <ModalContent>
-        <img
-          src={largeImageURL}
-          alt={tags}
-          width="960"
-          height="600"
-        />
+        <img src={largeImageURL} alt={tags} width="960" height="600" />
       </ModalContent>
     </ModalBackdrop>,
     modalRoot
   );
-};
+}

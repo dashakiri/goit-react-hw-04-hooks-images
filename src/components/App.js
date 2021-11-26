@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { toast, ToastContainer } from "react-toastify";
 import { SearchBar } from "./Searchbar/SearchBar";
 import ImageGallery from "./ImageGallery/ImageGallery";
 import { fetchImages } from "../services/fetchImages";
@@ -16,34 +15,35 @@ export default function App() {
   const [status, setStatus] = useState("idle");
 
   useEffect(() => {
-    fetchImages(searchQuery, page).then((data) => {
+    fetchImages(searchQuery, page).then(({ totalHits, hits }) => {
       if (searchQuery.trim() === "") {
         return;
       }
 
-      if (data.totalHits === 0) {
+      if (totalHits === 0) {
         setStatus("rejected");
+        return;
       }
 
       if (page === 1) {
-        setImages(data.hits);
+        setImages(hits);
         setStatus("resolved");
       }
 
       if (page > 1) {
-        onScroll();
-        setImages((prevState) => [...prevState, ...data.hits]);
+        setImages((prevState) => [...prevState, ...hits]);
         setStatus("resolved");
+        onScroll();
       }
     });
   }, [searchQuery, page]);
 
-  function onScroll() {
+  const onScroll = () => {
     window.scrollTo({
       top: document.documentElement.scrollHeight,
       behavior: "smooth",
     });
-  }
+  };
 
   const handleLoadMoreBtnClick = (e) => {
     e.preventDefault();
@@ -74,19 +74,18 @@ export default function App() {
       {status === "pending" && <ContentLoader />}
 
       {status === "resolved" && (
-        <>
+        <div>
           <ImageGallery
             images={images}
             handleSelectedImage={handleSelectedImage}
           />
           <LoadMoreButton onClick={handleLoadMoreBtnClick} />
-        </>
+        </div>
       )}
 
-      {status === "rejected" &&
-        toast.error(
-          `Изображения с именем ${this.props.searchQuery} не найдены!`
-        )}
+      {status === "rejected" && (
+        <p>Изображения с именем {searchQuery} не найдены!</p>
+      )}
 
       {largeImageURL && (
         <Modal
@@ -95,8 +94,6 @@ export default function App() {
           tags={tags}
         />
       )}
-
-      <ToastContainer />
     </div>
   );
 }
