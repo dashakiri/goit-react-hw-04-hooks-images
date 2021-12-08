@@ -5,6 +5,7 @@ import { fetchImages } from "../services/fetchImages";
 import Modal from "./Modal/Modal";
 import { LoadMoreButton } from "../components/Button/Button";
 import { ContentLoader } from "../components/Loader/Loader";
+import { Frame, GalleryWrapper } from "./App.styled";
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -66,7 +67,7 @@ export default function App() {
   };
 
   return (
-    <div>
+    <Frame>
       <SearchBar handleSubmittedForm={handleFormSubmit} />
 
       {status === "idle" && <p>Пожалуйста, введите поисковый запрос.</p>}
@@ -74,13 +75,13 @@ export default function App() {
       {status === "pending" && <ContentLoader />}
 
       {status === "resolved" && (
-        <div>
+        <GalleryWrapper>
           <ImageGallery
             images={images}
             handleSelectedImage={handleSelectedImage}
           />
           <LoadMoreButton onClick={handleLoadMoreBtnClick} />
-        </div>
+        </GalleryWrapper>
       )}
 
       {status === "rejected" && (
@@ -94,6 +95,6 @@ export default function App() {
           tags={tags}
         />
       )}
-    </div>
+    </Frame>
   );
 }
